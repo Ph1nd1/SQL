@@ -8,12 +8,16 @@ const pool = new Pool({
 });
 
 function addNewVisitor(name, age, date, time, visited, comments) {
-  pool.query(`INSERT INTO Visitors(name, age, date, time, visited, comments) VALUES (${name},${age}, ${date}, ${time}, ${visited}, ${comments})`, (err, res) => {
-    console.log('visitors:', res)
+  pool.query( `INSERT INTO visitors
+    (name, age, date, time, visited, comments)
+    VALUES($1, $2, $3, $4, $5, $6)
+    RETURNING *`,
+    [name, age, date, time, visited, comments], (err, res) => {
+    console.log('visitors:', res.rows)
     pool.end()
   })
 }
-addNewVisitor('Phind', 12, '01-11-2020', '12:45', 'SAM', 'To say hello');
+// addNewVisitor('Phind', 12, '01-11-2020', '12:45', 'SAM', 'To say hello');
 
 function visitorsList(){
   pool.query('SELECT id, name from visitors', (err, res) => {
@@ -31,13 +35,13 @@ function deleteVisitor(name){
 }
 // deleteVisitor('Sam');
 
-// function updateVisitor(id, name, age, date, time, visited, comments){
-//   pool.query(`UPDATE Visitors SET Name=${name}, Age=${age}, date=${date}, Time=${time}, Visited=${visited}, Comments=${comments} WHERE id=${id};`, (err, res) => {
-//     console.log(`Updated:`, res, err)
-//     pool.end()
-//   })
-// }
-// updateVisitor(3,'phindi')
+function updateVisitor(id, column, name){
+  pool.query(`UPDATE Visitors SET ${column}='${name}' WHERE id=${id};`, (err, res) => {
+    console.log(`Updated`)
+    pool.end()
+  })
+}
+//updateVisitor(1, 'name', 'pzm')
 
 function visitorId(id){
   pool.query(`SELECT * FROM visitors WHERE id=${id}`, (err, res) => {
@@ -45,7 +49,7 @@ function visitorId(id){
     pool.end()
   })
 }
-// visitorId(4);
+// visitorId(1);
 
 function deleteAllVisitors(){
   pool.query(`DELETE FROM Visitors`, (err, res) => {
